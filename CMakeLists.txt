@@ -70,7 +70,7 @@ foreach (dir ${source_dirs})
     ENDIF ()
 endforeach ()
 
-file(GLOB RESOURCES_FILES ${CMAKE_CURRENT_LIST_DIR}/Lib/ModelData/*.json ${CMAKE_CURRENT_LIST_DIR}/Lib/ModelData/*.onnx ${CMAKE_CURRENT_LIST_DIR}/Audio2Midi/Assets/*.ttf)
+file(GLOB RESOURCES_FILES ${CMAKE_CURRENT_LIST_DIR}/Lib/ModelData/*.json ${CMAKE_CURRENT_LIST_DIR}/Lib/ModelData/*.ort ${CMAKE_CURRENT_LIST_DIR}/Audio2Midi/Assets/*.ttf)
 juce_add_binary_data(bin_data SOURCES ${RESOURCES_FILES})
 
 target_include_directories(${BaseTargetName} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/ONNXRuntime/${ONNXRUNTIME_DIRNAME}/include)
@@ -92,7 +92,7 @@ endif ()
 add_library(onnxruntime SHARED IMPORTED)
 
 if (APPLE)
-    set_property(TARGET onnxruntime PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/ONNXRuntime/${ONNXRUNTIME_DIRNAME}/lib/libonnxruntime.dylib)
+    set_property(TARGET onnxruntime PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/ONNXRuntime/${ONNXRUNTIME_DIRNAME}/lib/libonnxruntime.a)
 
 elseif (WIN32)
     set_property(TARGET onnxruntime APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)

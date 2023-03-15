@@ -4,3 +4,6 @@
 [submodule "RTNeural"]
 	path = ThirdParty/RTNeural
 	url = https://github.com/jatinchowdhury18/RTNeural.git
+[submodule "ThirdParty/ort-builder"]
+	path = ThirdParty/ort-builder
+	url = https://github.com/olilarkin/ort-builder
