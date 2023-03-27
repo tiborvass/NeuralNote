@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Constants.h"
+#include "JuceHeader.h"
 
 enum PitchBendModes
 {
@@ -214,7 +215,7 @@ private:
      * @param inNumDiffs max varying offset.
      * @return
      */
-     // TODO: change to float
+    // TODO: change to float
     template <typename T>
     static std::vector<std::vector<T>>
         _inferredOnsets(const std::vector<std::vector<T>>& inOnsetsPG,
@@ -256,12 +257,18 @@ private:
                     // Basic Pitch calculates the minimum amongst positive and negative
                     // diffs instead of ignoring negative diffs (which mean "end of note")
                     // while we are only looking for "start of note" (aka onset).
-                    // TODO: the zeroing of negative diff should probably happen before
-                    // searching for minimum
                     auto& min = notes_diff[i][j];
-                    if (diff < min)
+                    bool useAlternativeInferOnsets = JUCE_LIVE_CONSTANT(1);
+                    if (useAlternativeInferOnsets)
                     {
                         diff = (diff < 0) ? 0 : diff;
+                    }
+                    if (diff < min)
+                    {
+                        if (!useAlternativeInferOnsets)
+                        {
+                            diff = (diff < 0) ? 0 : diff;
+                        }
                         // https://github.com/spotify/basic-pitch/blob/86fc60dab06e3115758eb670c92ead3b62a89b47/basic_pitch/note_creation.py#L298
                         min = (i >= inNumDiffs) ? diff : 0;
                     }
