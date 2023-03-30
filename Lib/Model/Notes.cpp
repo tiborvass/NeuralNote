@@ -66,10 +66,9 @@ std::vector<Notes::Event>
     // as per https://github.com/spotify/basic-pitch/blob/f85a8e9ade1f297b8adb39b155c483e2312e1aca/basic_pitch/note_creation.py#L399
     int last_frame = n_frames - 1;
 
-    // Go backwards in time
-    for (int frame_idx = last_frame - 1; frame_idx >= 0; frame_idx--)
+    for (int frame_idx = 1; frame_idx <= last_frame; frame_idx++)
     {
-        for (int note_idx = max_note_idx; note_idx >= min_note_idx; note_idx--)
+        for (int note_idx = min_note_idx; note_idx <= max_note_idx; note_idx++)
         {
             auto onset = onsets[frame_idx][note_idx];
 
@@ -90,9 +89,9 @@ std::vector<Notes::Event>
             }
 
             // find time index at this frequency band where the frames drop below an energy threshold
-            int i = frame_idx + 1;
+            int i = frame_idx - 1;
             int k = 0; // number of frames since energy dropped below threshold
-            while (i < last_frame && k < inParams.energyThreshold)
+            while (i > 0 && k < inParams.energyThreshold)
             {
                 if (remaining_energy[i][note_idx] < frame_threshold)
                 {
@@ -102,19 +101,19 @@ std::vector<Notes::Event>
                 {
                     k = 0;
                 }
-                i++;
+                i--;
             }
 
-            i -= k; // go back to frame above threshold
+            i += k; // go back to frame above threshold
 
             // if the note is too short, skip it
-            if ((i - frame_idx) <= inParams.minNoteLength)
+            if ((frame_idx - i) <= inParams.minNoteLength)
             {
                 continue;
             }
 
             double amplitude = 0.0;
-            for (int f = frame_idx; f < i; f++)
+            for (int f = i+1; f <= frame_idx; f++)
             {
                 amplitude += remaining_energy[f][note_idx];
                 remaining_energy[f][note_idx] = 0;
@@ -128,13 +127,13 @@ std::vector<Notes::Event>
                     remaining_energy[f][note_idx - 1] = 0;
                 }
             }
-            amplitude /= (i - frame_idx);
+            amplitude /= (frame_idx - i);
 
             events.push_back(Notes::Event {
-                _modelFrameToTime(frame_idx) /* startTime */,
-                _modelFrameToTime(i) /* endTime */,
-                frame_idx /* startFrame */,
-                i /* endFrame */,
+                _modelFrameToTime(i) /* startTime */,
+                _modelFrameToTime(frame_idx) /* endTime */,
+                i /* startFrame */,
+                frame_idx /* endFrame */,
                 note_idx + MIDI_OFFSET /* pitch */,
                 amplitude /* amplitude */,
             });
